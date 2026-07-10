@@ -3,22 +3,57 @@ services:
     image: redis:8.8.0-alpine
     container_name: redis
     restart: unless-stopped
-
     ports:
       - "6379:6379"
-
     volumes:
       - redis-data:/data
-
     command: >
       redis-server
       --appendonly yes
-
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: label_studio
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  label-studio:
+    image: heartexlabs/label-studio:latest
+    container_name: label-studio
+    restart: unless-stopped
+    environment:
+      DJANGO_DB: default
+      POSTGRE_HOST: postgres
+      POSTGRE_PORT: 5432
+      POSTGRE_USER: postgres
+      POSTGRE_PASSWORD: postgres
+      POSTGRE_NAME: label_studio
+    ports:
+      - "8080:8080"
+    volumes:
+      - label-studio-data:/label-studio/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   redis-data:
+  postgresql-data:
+  label-studio-data:
