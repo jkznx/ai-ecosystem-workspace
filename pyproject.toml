@@ -1,0 +1,12 @@
+[project]
+name = "ai-ecosystem-workspace"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "arq>=0.28.0",
+    "label-studio-sdk>=2.1.0",
+    "pydantic>=2.13.4",
+    "sqlalchemy>=2.0.51",
+]
