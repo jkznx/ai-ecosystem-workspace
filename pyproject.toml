@@ -1,7 +1,7 @@
 [project]
 name = "ai-ecosystem-workspace"
 version = "0.1.0"
-description = "Add your description here"
+description = "build a ecosysrtem for AI development"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
