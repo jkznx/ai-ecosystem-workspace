@@ -10,3 +10,4 @@ async def simple_work(ctx: dict, *args, **kwargs) -> dict:
 class WorkerSettings:
     functions = [simple_work]
     redis_settings = RedisSettings(host=settings.REDIS_HOST, port=settings.REDIS_PORT, database=settings.REDIS_DB)
+    
