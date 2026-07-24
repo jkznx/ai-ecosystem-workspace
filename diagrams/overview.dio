@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="pGEy_f_-WNaq1IQhqlF5" name="Page-1">
-        <mxGraphModel dx="756" dy="400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
+        <mxGraphModel dx="1498" dy="1662" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -147,26 +147,29 @@
                 <mxCell id="54" value="Admin" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;labelBackgroundColor=default;" parent="1" vertex="1">
                     <mxGeometry x="53.92999999999995" y="285" width="60" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="58" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=none;strokeWidth=10;fontColor=#ffffff;strokeColor=#FF0000;" vertex="1" parent="1">
+                <mxCell id="58" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=none;strokeWidth=10;fontColor=#ffffff;strokeColor=#FF0000;" parent="1" vertex="1">
                     <mxGeometry x="365.61" y="600" width="80" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="59" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" vertex="1" parent="1">
+                <mxCell id="59" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" parent="1" vertex="1">
                     <mxGeometry x="355.61" y="590" width="20" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="60" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" vertex="1" parent="1">
+                <mxCell id="60" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" parent="1" vertex="1">
                     <mxGeometry x="435.61" y="590" width="20" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="61" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" vertex="1" parent="1">
+                <mxCell id="61" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" parent="1" vertex="1">
                     <mxGeometry x="355.61" y="670" width="20" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="63" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" vertex="1" parent="1">
+                <mxCell id="63" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" parent="1" vertex="1">
                     <mxGeometry x="435.61" y="670" width="20" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="64" value="Label Studio" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+                <mxCell id="64" value="Label Studio" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="375.61" y="695" width="60" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="65" style="edgeStyle=none;html=1;startArrow=classic;startFill=1;" edge="1" parent="1" source="14" target="58">
+                <mxCell id="65" style="edgeStyle=none;html=1;startArrow=classic;startFill=1;" parent="1" source="14" target="58" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="66" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Docker.svg;" vertex="1" parent="1">
+                    <mxGeometry x="552.8" y="-170.00000000000006" width="104.39" height="85.6" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

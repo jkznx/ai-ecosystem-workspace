@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "label_studio"
+    
+    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "aegis@810vii"
+    MINIO_BUCKET: str = "selfie-photos"
+    MINIO_SECURE: bool = False
 
     @property
     def POSTGRES_DSN(self) -> str:
