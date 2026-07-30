@@ -1,6 +1,6 @@
 # AI Ecosystem Workspace
 
-A modular workspace for developing, experimenting, and integrating AI tools, models, and pipelines. This repository provides a containerized environment with essential services and developer tooling for AI experiments, data labeling, and simple backend integrations.
+A modular workspace for developing, experimenting, and integrating AI tools, models, and pipelines. This repository provides a containerized environment with essential services and developer tooling for building and testing small-to-medium AI projects locally.
 
 ## Table of Contents
 
@@ -10,6 +10,7 @@ A modular workspace for developing, experimenting, and integrating AI tools, mod
 - [Getting Started](#getting-started)
 - [Environment](#environment)
 - [Services](#services)
+- [FastAPI Example](#fastapi-example)
 - [Dependencies](#dependencies)
 - [Development Workflow](#development-workflow)
 - [Contributing](#contributing)
@@ -17,7 +18,7 @@ A modular workspace for developing, experimenting, and integrating AI tools, mod
 
 ## Overview
 
-AI Ecosystem Workspace is designed as a lightweight, composable platform for AI experimentation and integration. It uses Docker Compose to orchestrate services and includes Python tooling for data processing, model integration, and developer workflows. The project is intentionally small and modular to make it easy to extend for new experiments and integrations.
+AI Ecosystem Workspace is designed as a lightweight, composable platform for AI experimentation and integration. It uses Docker Compose to orchestrate services and includes Python tooling for data processing, model experimentation, and simple backend services.
 
 Key use cases:
 - Rapid prototyping of AI models and data pipelines
@@ -34,6 +35,7 @@ Key use cases:
 - PostgreSQL for structured data
 - Redis for caching and async queues
 - Python tooling with modern dependency management (uv)
+- Minimal FastAPI example app with Uvicorn for local development and testing
 
 ## Project Structure
 
@@ -46,6 +48,8 @@ ai-ecosystem-workspace/
 ├── .python-version        # Python version specification
 ├── uv.lock                # Locked dependencies for uv
 ├── backend/               # Backend application code (placeholder)
+│   └── app/
+│       └── main.py        # Example FastAPI app (recommended location)
 ├── sandbox/               # Experimentation and prototyping area
 ├── diagrams/              # Architecture and documentation diagrams
 └── out.jpg                # Generated output/visualization
@@ -114,6 +118,12 @@ source .venv/bin/activate    # macOS / Linux
 pip install -e .
 ```
 
+If you plan to run the example FastAPI app locally install FastAPI and Uvicorn (if not already included in your project dependencies):
+
+```bash
+pip install fastapi uvicorn[standard]
+```
+
 4. Start Docker services
 
 ```bash
@@ -124,9 +134,20 @@ This will start services described below (Redis, PostgreSQL, Label Studio, MinIO
 
 5. Run the application example
 
+- To run the simple example `main.py`:
+
 ```bash
 python main.py
 ```
+
+- To run the FastAPI example (if you add or use the example backend/app/main.py):
+
+```bash
+# from repository root
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Visit http://localhost:8000/docs for the automatic interactive API docs when running with `--reload`.
 
 ## Environment
 
@@ -169,10 +190,32 @@ The Compose configuration brings up several services. The descriptions below ref
   - Access Key: `minioadmin`
   - Secret Key: `aegis@810vii`
 
+## FastAPI Example
+
+A minimal FastAPI app is a recommended addition for serving small APIs or demoing model inference locally. Place an example app at `backend/app/main.py` with contents similar to:
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+@app.get("/hello")
+async def hello(name: str = "world"):
+    return {"message": f"hello, {name}"}
+```
+
+Run it with Uvicorn as shown in the Quick Start section.
+
 ## Dependencies
 
 Core Python dependencies (from `pyproject.toml`):
 
+- `fastapi` — Modern, fast (high-performance) web framework for building APIs with Python
+- `uvicorn[standard]` — ASGI server for running FastAPI apps (use `--reload` during development)
 - `arq` >= 0.28.0 — Async job queue
 - `label-studio-sdk` >= 2.1.0 — Label Studio integration
 - `minio` >= 7.2.20 — MinIO client
@@ -182,7 +225,7 @@ Core Python dependencies (from `pyproject.toml`):
 - `python-dotenv` >= 1.2.2 — Environment variable loading
 - `sqlalchemy` >= 2.0.51 — ORM and database toolkit
 
-Install dependencies with `uv sync` or `pip install -e .` as shown above.
+Install dependencies with `uv sync` or `pip install -e .` as shown above (or `pip install fastapi uvicorn[standard]` to add the FastAPI runtime manually).
 
 ## Development Workflow
 
