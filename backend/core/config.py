@@ -24,6 +24,16 @@ class Settings(BaseSettings):
     MINIO_BUCKET: str = "selfie-photos"
     MINIO_SECURE: bool = False
 
+    # JWT Setting
+    JWT_SECRET_KEY: str = "change-me-in-.env"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # admin init
+    ADMIN_USERNAME: str = "admin"
+    ADMIN_PASSWORD: str = "admin"  # ควรเปลี่ยนใน .env เมื่อใช้งานจริง
+
     @property
     def POSTGRES_DSN(self) -> str:
         return (f"postgresql+psycopg2://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
