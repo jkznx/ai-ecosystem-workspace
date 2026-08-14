@@ -14,7 +14,6 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "arq" },
-    { name = "bcrypt" },
     { name = "fastapi" },
     { name = "label-studio-sdk" },
     { name = "minio" },
@@ -32,7 +31,6 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "arq", specifier = ">=0.28.0" },
-    { name = "bcrypt", specifier = "==4.0.1" },
     { name = "fastapi", specifier = ">=0.110.0" },
     { name = "label-studio-sdk", specifier = ">=2.1.0" },
     { name = "minio", specifier = ">=7.2.20" },

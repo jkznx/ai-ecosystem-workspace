@@ -1,10 +1,10 @@
 <mxfile host="65bd71144e">
     <diagram id="pGEy_f_-WNaq1IQhqlF5" name="Page-1">
-        <mxGraphModel dx="788" dy="1629" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
+        <mxGraphModel dx="1362" dy="1665" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="70" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;dashed=1;dashPattern=8 8;strokeColor=#267AFF;" vertex="1" parent="1">
+                <mxCell id="70" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;dashed=1;dashPattern=8 8;strokeColor=#267AFF;" parent="1" vertex="1">
                     <mxGeometry x="320" y="-200" width="760" height="960" as="geometry"/>
                 </mxCell>
                 <mxCell id="30" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=classic;endFill=1;startArrow=classic;startFill=1;labelBackgroundColor=none;" parent="1" edge="1">
@@ -39,13 +39,13 @@
                         <mxPoint x="406" y="210" as="sourcePoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="9" value="Central API&lt;div&gt;Server&lt;/div&gt;" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;labelBackgroundColor=none;" parent="1" vertex="1">
-                    <mxGeometry x="375.84" y="170" width="60" height="30" as="geometry"/>
+                <mxCell id="9" value="Central API&lt;div&gt;Server&lt;/div&gt;" style="text;align=center;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;labelBackgroundColor=none;fillColor=default;strokeColor=default;" parent="1" vertex="1">
+                    <mxGeometry x="367.7" y="170" width="84.16" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="10" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Cache_Redis_Product.svg;labelBackgroundColor=none;" parent="1" vertex="1">
                     <mxGeometry x="563.93" y="81.5" width="82.14" height="69" as="geometry"/>
                 </mxCell>
-                <mxCell id="11" value="Redis&lt;div&gt;Server&lt;/div&gt;" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;labelBackgroundColor=none;" parent="1" vertex="1">
+                <mxCell id="11" value="Redis&lt;div&gt;Server&lt;/div&gt;" style="text;strokeColor=default;align=center;fillColor=default;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;labelBackgroundColor=none;gradientColor=none;" parent="1" vertex="1">
                     <mxGeometry x="574.9999999999999" y="160" width="60" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="12" value="«management&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;»&lt;/span&gt;&lt;div&gt;&lt;b&gt;Channel&lt;/b&gt;&lt;/div&gt;" style="html=1;whiteSpace=wrap;labelBackgroundColor=none;" parent="1" vertex="1">
@@ -179,12 +179,12 @@
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="66" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Docker.svg;" parent="1" vertex="1">
-                    <mxGeometry x="1050" y="-290.00000000000006" width="104.39" height="85.6" as="geometry"/>
+                    <mxGeometry x="975.61" y="-310.00000000000006" width="104.39" height="85.6" as="geometry"/>
                 </mxCell>
-                <mxCell id="68" value="&lt;font&gt;MinIO&amp;nbsp;&lt;/font&gt;&lt;div&gt;&lt;font&gt;Object Storage (S3)&lt;/font&gt;&lt;/div&gt;" style="text;whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+                <mxCell id="68" value="&lt;font&gt;MinIO&amp;nbsp;&lt;/font&gt;&lt;div&gt;&lt;font&gt;Object Storage (S3)&lt;/font&gt;&lt;/div&gt;" style="text;whiteSpace=wrap;html=1;align=center;" parent="1" vertex="1">
                     <mxGeometry x="556.0699999999999" y="690" width="116.07" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="71" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.995;entryY=0.63;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=classic;startFill=1;" edge="1" parent="1" source="69" target="8">
+                <mxCell id="71" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.995;entryY=0.63;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=classic;startFill=1;" parent="1" source="69" target="8" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="620" y="490" as="targetPoint"/>
                         <Array as="points">
@@ -195,24 +195,24 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="69" value="" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.s3;fillColor=#E05243;gradientColor=none;" vertex="1" parent="1">
+                <mxCell id="69" value="" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.s3;fillColor=#E05243;gradientColor=none;" parent="1" vertex="1">
                     <mxGeometry x="567.1400000000001" y="590" width="93.93" height="100" as="geometry"/>
                 </mxCell>
-                <mxCell id="73" style="edgeStyle=none;html=1;entryX=0.36;entryY=0.971;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=classic;startFill=1;" edge="1" parent="1" target="35">
+                <mxCell id="73" style="edgeStyle=none;html=1;entryX=0.36;entryY=0.971;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=classic;startFill=1;" parent="1" target="35" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="599" y="580" as="sourcePoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="74" value="JWT Auth&amp;nbsp;&lt;div&gt;&amp;amp; Security Layer&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+                <mxCell id="74" value="JWT Auth&amp;nbsp;&lt;div&gt;&amp;amp; Security Layer&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
                     <mxGeometry x="357.11" y="10" width="105.34" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="75" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="74" target="8">
+                <mxCell id="75" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="74" target="8" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="76" value="/jobs/enqueue" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                <mxCell id="76" value="/jobs/enqueue" style="text;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="466.07" y="91" width="80" height="24" as="geometry"/>
                 </mxCell>
-                <mxCell id="77" value="ARQ" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                <mxCell id="77" value="ARQ" style="text;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="626.07" y="220" width="30" height="20" as="geometry"/>
                 </mxCell>
             </root>

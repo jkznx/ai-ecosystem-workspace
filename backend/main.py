@@ -1,14 +1,26 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy import select
 
-from backend.api.routers import health, students, storage, annotation, jobs, auth
+from backend.api.v1 import api_v1_router
+from backend.api.v1 import health as health_router_module
 from backend.core.config import settings
-from backend.core.db.session import Base, engine, get_session
 from backend.core.db.models import User
+from backend.core.db.session import Base, engine, get_session
+from backend.core.exceptions import AppError, ConflictError, ForbiddenError, NotFoundError, UnauthorizedError
 from backend.core.logger import logger
 from backend.core.security import hash_password
+
+_STATUS_MAP = {
+    NotFoundError: 404,
+    ConflictError: 409,
+    UnauthorizedError: 401,
+    ForbiddenError: 403,
+}
+
 
 def _seed_admin() -> None:
     with get_session() as db:
@@ -22,6 +34,7 @@ def _seed_admin() -> None:
             db.commit()
             logger.info("Seeded default admin user %r", settings.ADMIN_USERNAME)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting up %s", settings.APP_NAME)
@@ -30,7 +43,25 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Shutting down %s", settings.APP_NAME)
 
-app = FastAPI(title=settings.APP_NAME, debug=settings.DEBUG, lifespan=lifespan)
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    description=(
+        "Backend APIs สำหรับ AI Ecosystem Workspace: Auth, MinIO (object storage), "
+        "Label Studio (annotation), ARQ/Redis (background jobs), PostgreSQL (data)"
+    ),
+    version="0.1.0",
+    debug=settings.DEBUG,
+    lifespan=lifespan,
+    openapi_tags=[
+        {"name": "auth", "description": "Login และจัดการ JWT token"},
+        {"name": "minio", "description": "Object storage ผ่าน MinIO"},
+        {"name": "labelstudio", "description": "เชื่อมต่อ Label Studio"},
+        {"name": "arq", "description": "Background job queue ผ่าน ARQ/Redis"},
+        {"name": "postgres", "description": "ข้อมูลใน PostgreSQL"},
+        {"name": "monitoring", "description": "Health check และดู config"},
+    ],
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,9 +70,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(health.router, prefix="/api/v1")
-app.include_router(auth.router, prefix="/api/v1")
-app.include_router(students.router, prefix="/api/v1")
-app.include_router(storage.router, prefix="/api/v1")
-app.include_router(annotation.router, prefix="/api/v1")
-app.include_router(jobs.router, prefix="/api/v1")
+
+@app.exception_handler(AppError)
+async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
+    status_code = _STATUS_MAP.get(type(exc), 400)
+    return JSONResponse(status_code=status_code, content={"detail": str(exc)})
+
+
+app.include_router(health_router_module.router)
+app.include_router(api_v1_router)
