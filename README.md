@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="baby.png" alt="logo" width="160" style="border-radius:12px; box-shadow: 0 8px 24px rgba(33,37,41,0.12);"/>
+  <img src="dev\github\logo\baby.png" alt="logo" width="160" style="border-radius:12px; box-shadow: 0 8px 24px rgba(33,37,41,0.12);"/>
 </p>
 
 # AI Ecosystem Workspace
@@ -42,23 +42,17 @@ See the `What changed recently` section below for commit links and summary.
 
 ```
 ai-ecosystem-workspace/
-├── README.md           # This file
-├── compose.yml           # Docker Compose services configuration
-├── pyproject.toml        # Python project metadata and dependencies
-├── main.py               # Example entry or script at repository root
-├── backend/              # Backend application code
-│   ├── main.py           # Backend entry point
-│   ├── api/              # HTTP API (endpoints)
-│   ├── core/             # Core business logic and models
-│   ├── libs/             # Internal libraries and utilities
-│   ├── services/         # Service layer and integrations
-│   ├── utils/            # Helper utilities
-│   └── workers/          # Background worker implementations
-├── scripts/              # Utility scripts (export_openapi.py, enqueue_job.py)
-├── docs/                 # Documentation artifacts and API exports
-├── diagrams/             # Architecture diagrams (source + PNG)
-├── sandbox/              # Experimental integrations (labelstudio, minio)
-└── out.jpg               # Example generated output / visualization
+├── README.md           # This file (styled)
+├── OVERVIEW.md         # Older overview (kept for reference)
+├── compose.yml         # Docker Compose services configuration
+├── pyproject.toml      # Python metadata & deps
+├── main.py             # Example entry script at repo root
+├── backend/            # Backend app code (api, core, services, workers)
+├── scripts/            # Utility scripts (export_openapi.py, enqueue_job.py)
+├── docs/               # Documentation artifacts & API exports
+├── diagrams/           # Architecture diagrams (source + PNG)
+├── sandbox/            # Experimental integrations (labelstudio, minio)
+└── out.jpg             # Example generated output / visualization
 ```
 
 ## Getting Started
