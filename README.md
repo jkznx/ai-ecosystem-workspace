@@ -36,20 +36,7 @@ AI Ecosystem Workspace is designed as a developer playground for model prototypi
 
 ## Project Structure
 
-```
-ai-ecosystem-workspace/
-├── README.md           # This file (styled)
-├── OVERVIEW.md         # Older overview (kept for reference)
-├── compose.yml         # Docker Compose services configuration
-├── pyproject.toml      # Python metadata & deps
-├── main.py             # Example entry script at repo root
-├── backend/            # Backend app code (api, core, services, workers)
-├── scripts/            # Utility scripts (export_openapi.py, enqueue_job.py)
-├── docs/               # Documentation artifacts & API exports
-├── diagrams/           # Architecture diagrams (source + PNG)
-├── sandbox/            # Experimental integrations (labelstudio, minio)
-└── out.jpg             # Example generated output / visualization
-```
+[![GitHubTree](https://img.shields.io/badge/GitHubTree-ai--ecosystem--workspace-blue?style=flat-square)](https://githubtree.mgks.dev/repo/jkznx/ai-ecosystem-workspace/main/?ref=badge)
 
 ## Getting Started
 
