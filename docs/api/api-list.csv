@@ -1,0 +1,23 @@
+﻿Method,Path,Tags,Operation ID,Summary,Description,Parameters,Request Body,Responses
+GET,/api/v1/arq/load/list,arq,load_list_api_v1_arq_load_list_get,Load List,,,,200: Successful Response
+GET,/api/v1/arq/load/status/{job_id},arq,load_status_api_v1_arq_load_status__job_id__get,Load Status,,"job_id (path, required)",,200: Successful Response | 422: Validation Error
+DELETE,/api/v1/arq/store/cancel/{job_id},arq,cancel_api_v1_arq_store_cancel__job_id__delete,Cancel,,"job_id (path, required)",,204: Successful Response | 422: Validation Error
+POST,/api/v1/arq/store/enqueue,arq,enqueue_api_v1_arq_store_enqueue_post,Enqueue,,,application/json,200: Successful Response | 422: Validation Error
+POST,/api/v1/auth/login,auth,login_api_v1_auth_login_post,Login,,,application/x-www-form-urlencoded,200: Successful Response | 422: Validation Error
+GET,/api/v1/auth/me,auth,me_api_v1_auth_me_get,Me,,,,200: Successful Response
+POST,/api/v1/auth/token/refresh,auth,refresh_api_v1_auth_token_refresh_post,Refresh,,,application/json,200: Successful Response | 422: Validation Error
+GET,/api/v1/config,monitoring,get_config_api_v1_config_get,Get Config,,,,200: Successful Response
+GET,/api/v1/health,monitoring,health_api_v1_health_get,Health,,,,200: Successful Response
+GET,/api/v1/health/ready,monitoring,readiness_api_v1_health_ready_get,Readiness,,,,200: Successful Response
+GET,/api/v1/labelstudio/load/export/{project_id},labelstudio,load_export_api_v1_labelstudio_load_export__project_id__get,Load Export,,"project_id (path, required), export_type (query, optional)",,200: Successful Response | 422: Validation Error
+GET,/api/v1/labelstudio/load/projects,labelstudio,load_projects_api_v1_labelstudio_load_projects_get,Load Projects,,,,200: Successful Response
+GET,/api/v1/labelstudio/load/tasks/{project_id},labelstudio,load_tasks_api_v1_labelstudio_load_tasks__project_id__get,Load Tasks,,"project_id (path, required)",,200: Successful Response | 422: Validation Error
+POST,/api/v1/labelstudio/store/tasks/{project_id},labelstudio,store_task_api_v1_labelstudio_store_tasks__project_id__post,Store Task,,"project_id (path, required)",application/json,201: Successful Response | 422: Validation Error
+GET,/api/v1/minio/load/object/{object_name},minio,load_object_api_v1_minio_load_object__object_name__get,Load Object,,"object_name (path, required), expires_minutes (query, optional)",,200: Successful Response | 422: Validation Error
+GET,/api/v1/minio/load/versions/{object_name},minio,load_versions_api_v1_minio_load_versions__object_name__get,Load Versions,,"object_name (path, required)",,200: Successful Response | 422: Validation Error
+DELETE,/api/v1/minio/store/object/{object_name},minio,delete_object_api_v1_minio_store_object__object_name__delete,Delete Object,,"object_name (path, required), version_id (query, optional)",,204: Successful Response | 422: Validation Error
+POST,/api/v1/minio/store/upload,minio,upload_api_v1_minio_store_upload_post,Upload,,,multipart/form-data,200: Successful Response | 422: Validation Error
+GET,/api/v1/postgres/load/students,postgres,load_students_api_v1_postgres_load_students_get,Load Students,,"skip (query, optional), limit (query, optional)",,200: Successful Response | 422: Validation Error
+GET,/config,monitoring,get_config_config_get,Get Config,,,,200: Successful Response
+GET,/health,monitoring,health_health_get,Health,,,,200: Successful Response
+GET,/health/ready,monitoring,readiness_health_ready_get,Readiness,,,,200: Successful Response

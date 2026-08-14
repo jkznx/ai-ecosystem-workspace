@@ -47,19 +47,25 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.APP_NAME,
     description=(
-        "Backend APIs สำหรับ AI Ecosystem Workspace: Auth, MinIO (object storage), "
-        "Label Studio (annotation), ARQ/Redis (background jobs), PostgreSQL (data)"
+    """
+    6610110428 Jukrachai Plongmai
+    
+    Backend API for AI Ecosystem Workspace.
+
+    Provides APIs for authentication, students,
+    storage, annotation and background jobs.
+    """
     ),
     version="0.1.0",
     debug=settings.DEBUG,
     lifespan=lifespan,
     openapi_tags=[
-        {"name": "auth", "description": "Login และจัดการ JWT token"},
-        {"name": "minio", "description": "Object storage ผ่าน MinIO"},
-        {"name": "labelstudio", "description": "เชื่อมต่อ Label Studio"},
-        {"name": "arq", "description": "Background job queue ผ่าน ARQ/Redis"},
-        {"name": "postgres", "description": "ข้อมูลใน PostgreSQL"},
-        {"name": "monitoring", "description": "Health check และดู config"},
+        {"name": "auth", "description": "Login and Manage JWT token"},
+        {"name": "minio", "description": "Object storage through MinIO"},
+        {"name": "labelstudio", "description": "connect Label Studio"},
+        {"name": "arq", "description": "Background job queue through ARQ/Redis"},
+        {"name": "postgres", "description": "Data in PostgreSQL"},
+        {"name": "monitoring", "description": "Health check and look config"},
     ],
 )
 
