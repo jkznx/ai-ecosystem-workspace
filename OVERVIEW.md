@@ -1,72 +1,71 @@
 # AI Ecosystem Workspace
 
-A modular workspace for developing, experimenting, and integrating AI tools, models, and pipelines. This repository provides a containerized environment with essential services and developer tooling for building and testing small-to-medium AI projects locally.
+A modular workspace for developing, experimenting, and integrating AI tools, models, and pipelines. This repository provides developer tooling, Python backend code, diagrams, utility scripts, and sandboxed integrations for experimentation.
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Key Features](#key-features)
+- [Current repository state](#current-repository-state)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
-- [Environment](#environment)
-- [Services](#services)
+- [Environment & Dependencies](#environment--dependencies)
+- [Services (Docker Compose)](#services-docker-compose)
 - [FastAPI Example](#fastapi-example)
-- [Dependencies](#dependencies)
 - [Development Workflow](#development-workflow)
+- [What changed recently](#what-changed-recently)
 - [Contributing](#contributing)
 - [Contact](#contact)
 
 ## Overview
 
-AI Ecosystem Workspace is designed as a lightweight, composable platform for AI experimentation and integration. It uses Docker Compose to orchestrate services and includes Python tooling for data processing, model experimentation, and simple backend services.
+AI Ecosystem Workspace is designed as a lightweight, composable platform for AI experimentation and integration. It includes a small Python backend, scripts to help with OpenAPI export and job enqueueing, sandboxed integrations (Label Studio, MinIO), and architecture diagrams.
 
-Key use cases:
-- Rapid prototyping of AI models and data pipelines
-- Data labeling and annotation workflows using Label Studio
-- Local S3-compatible object storage using MinIO
-- Simple relational database backed by PostgreSQL
-- Background/async job processing with Redis and arq
+Use this repository as a local developer playground for model prototyping, data labeling workflows, and integration experiments.
 
-## Key Features
+## Current repository state
 
-- Multi-service Docker Compose setup
-- Label Studio for annotation workflows
-- MinIO for S3-compatible object storage
-- PostgreSQL for structured data
-- Redis for caching and async queues
-- Python tooling with modern dependency management (uv)
-- Minimal FastAPI example app with Uvicorn for local development and testing
+This update reflects the repository's current state as of the latest commit:
+- Component-level README.md files have been added under backend/, diagrams/, docs/, scripts/, and sandbox/ to document the current state and usage notes for each area.
+- The backend entry point exists at `backend/main.py` and the repository root contains `main.py` (example entry script).
+- Utility scripts are available under `scripts/` (for exporting OpenAPI and enqueueing jobs).
+- Diagrams source (`diagrams/overview.dio`) and image (`diagrams/overview.png`) are present.
+
+See the `What changed recently` section below for commit links and summary.
 
 ## Project Structure
 
 ```
 ai-ecosystem-workspace/
-├── README.md              # This file
-├── compose.yml            # Docker Compose services configuration
-├── pyproject.toml         # Python project metadata and dependencies
-├── main.py                # Main entry point (example)
-├── .python-version        # Python version specification
-├── uv.lock                # Locked dependencies for uv
-├── backend/               # Backend application code (placeholder)
-│   └── app/
-│       └── main.py        # Example FastAPI app (recommended location)
-├── sandbox/               # Experimentation and prototyping area
-├── diagrams/              # Architecture and documentation diagrams
-└── out.jpg                # Generated output/visualization
+├── OVERVIEW.md           # This file
+├── README.md             # Top-level README (may be updated separately)
+├── compose.yml           # Docker Compose services configuration
+├── pyproject.toml        # Python project metadata and dependencies
+├── main.py               # Example entry or script at repository root
+├── backend/              # Backend application code
+│   ├── main.py           # Backend entry point
+│   ├── api/              # HTTP API (endpoints)
+│   ├── core/             # Core business logic and models
+│   ├── libs/             # Internal libraries and utilities
+│   ├── services/         # Service layer and integrations
+│   ├── utils/            # Helper utilities
+│   └── workers/          # Background worker implementations
+├── scripts/              # Utility scripts (export_openapi.py, enqueue_job.py)
+├── docs/                 # Documentation artifacts and API exports
+├── diagrams/             # Architecture diagrams (source + PNG)
+├── sandbox/              # Experimental integrations (labelstudio, minio)
+└── out.jpg               # Example generated output / visualization
 ```
-
-Note: `compose.yml` is the repository's Docker Compose configuration. The backend and sandbox folders are intended as starting points; add modules and experiments as needed.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Git (latest stable)
+- Git
 - Docker & Docker Compose (for running services)
-- Python 3.14+ (for local development; see `.python-version`)
-- uv (recommended) or pip for dependency management
+- Python 3.14+ (see `.python-version`)
+- `uv` (optional) or pip for dependency management
 
-### Quick Start
+### Quick Start (local development)
 
 1. Clone the repository
 
@@ -75,164 +74,62 @@ git clone https://github.com/jkznx/ai-ecosystem-workspace.git
 cd ai-ecosystem-workspace
 ```
 
-2. Configure environment variables
-
-Create a `.env` file in the repository root (example values shown):
-
-```env
-# Database
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=label_studio
-POSTGRES_PORT=5432
-
-# Redis
-REDIS_URL=redis://redis:6379
-
-# MinIO
-MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=aegis@810vii
-MINIO_CONSOLE_PORT=9001
-MINIO_API_PORT=9000
-
-# Label Studio
-LABEL_STUDIO_PORT=8080
-```
-
-Avoid committing secrets to the repo. For production or shared environments, override credentials using a secure secrets manager.
-
-3. Install Python dependencies
-
-Using uv (recommended):
-
-```bash
-uv sync
-```
-
-Or using venv + pip:
+2. Create a Python virtual environment and install the project
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate    # macOS / Linux
-.\.venv\Scripts\activate   # Windows (PowerShell)
+# or .\.venv\Scripts\activate on Windows (PowerShell)
 pip install -e .
 ```
 
-If you plan to run the example FastAPI app locally install FastAPI and Uvicorn (if not already included in your project dependencies):
+(If you use `uv`, run `uv sync` to apply the lockfile.)
 
-```bash
-pip install fastapi uvicorn[standard]
-```
-
-4. Start Docker services
+3. Start dependent services with Docker Compose (optional)
 
 ```bash
 docker compose -f compose.yml up -d
 ```
 
-This will start services described below (Redis, PostgreSQL, Label Studio, MinIO).
-
-5. Run the application example
-
-- To run the simple example `main.py`:
+4. Run the backend example
 
 ```bash
-python main.py
+python backend/main.py
 ```
 
-- To run the FastAPI example (if you add or use the example backend/app/main.py):
+Or run a FastAPI app (if present) with Uvicorn:
 
 ```bash
-# from repository root
 uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Visit http://localhost:8000/docs for the automatic interactive API docs when running with `--reload`.
+## Environment & Dependencies
 
-## Environment
+- `.python-version` contains the target Python version for the project.
+- `pyproject.toml` lists the Python dependencies. Use `pip install -e .` or `uv sync` (if using `uv`) to install.
 
-- Python: .python-version contains the target Python version (3.14+ by default in this repo).
-- Dependency lock: `uv.lock` is used when working with the `uv` package manager.
+Common runtime dependencies used or expected by the repository include FastAPI, Uvicorn, arq (async queue), MinIO client, psycopg2, SQLAlchemy, and pydantic.
 
-## Services
+## Services (Docker Compose)
 
-The Compose configuration brings up several services. The descriptions below reflect the current setup in this repository.
+The repository includes `compose.yml` to start common development services for the workspace. Typical services include:
+- Redis (caching and async queue backend)
+- PostgreSQL (relational database for examples and Label Studio)
+- Label Studio (annotation interface)
+- MinIO (S3-compatible object storage)
 
-### Redis
-- Image: `redis:8.8.0-alpine`
-- Port: 6379 (container port)
-- Purpose: Caching and async job queues (used with `arq`)
-- Persistence: AOF or volume-backed persistence is recommended for non-transient state
-
-### PostgreSQL
-- Image: `postgres:16-alpine`
-- Port: 5432 (container port) mapped to host 5433 in the example compose
-- Default credentials (development):
-  - User: `postgres`
-  - Password: `postgres`
-  - Database: `label_studio`
-
-> Tip: Use the `.env` file to override these values before starting services.
-
-### Label Studio
-- Image: `heartexlabs/label-studio:latest`
-- Port: 8080
-- Purpose: Data labeling and annotation interface
-- Database: Configurable to use the PostgreSQL service in this compose setup
-
-### MinIO
-- Image: `minio/minio:latest`
-- Ports:
-  - 9000 (S3 API)
-  - 9001 (Web console)
-- Purpose: Object storage (S3-compatible)
-- Default development credentials (see `.env`):
-  - Access Key: `minioadmin`
-  - Secret Key: `aegis@810vii`
+Use a `.env` file to override default credentials and ports before starting the compose stack.
 
 ## FastAPI Example
 
-A minimal FastAPI app is a recommended addition for serving small APIs or demoing model inference locally. Place an example app at `backend/app/main.py` with contents similar to:
-
-```python
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
-
-@app.get("/hello")
-async def hello(name: str = "world"):
-    return {"message": f"hello, {name}"}
-```
-
-Run it with Uvicorn as shown in the Quick Start section.
-
-## Dependencies
-
-Core Python dependencies (from `pyproject.toml`):
-
-- `fastapi` — Modern, fast (high-performance) web framework for building APIs with Python
-- `uvicorn[standard]` — ASGI server for running FastAPI apps (use `--reload` during development)
-- `arq` >= 0.28.0 — Async job queue
-- `label-studio-sdk` >= 2.1.0 — Label Studio integration
-- `minio` >= 7.2.20 — MinIO client
-- `psycopg2-binary` >= 2.9.12 — PostgreSQL adapter
-- `pydantic` >= 2.13.4 — Data validation
-- `pydantic-settings` >= 2.14.2 — Settings management
-- `python-dotenv` >= 1.2.2 — Environment variable loading
-- `sqlalchemy` >= 2.0.51 — ORM and database toolkit
-
-Install dependencies with `uv sync` or `pip install -e .` as shown above (or `pip install fastapi uvicorn[standard]` to add the FastAPI runtime manually).
+A minimal FastAPI example is recommended and can be placed at `backend/app/main.py`. It should expose a `/health` and sample `/hello` endpoint and can be run with Uvicorn to view interactive docs at `/docs`.
 
 ## Development Workflow
 
-- Use the `sandbox/` folder for experiments and prototypes.
-- Add reusable backend modules to `backend/` and import them into `main.py` as needed.
-- Keep `diagrams/` updated when architecture changes.
-- Use Docker Compose for running dependent services locally; prefer ephemeral volumes for experiments.
+- Use `sandbox/` for experiments and prototypes. Don't rely on sandbox artifacts for production code.
+- Add stable, reusable code to `backend/` and keep component READMEs up-to-date.
+- Update `diagrams/` when architecture changes.
+- Keep secrets out of the repository. Use `.env` in development and a secure secrets manager for shared/production deployments.
 
 Common commands:
 
@@ -240,26 +137,34 @@ Common commands:
 # Start services
 docker compose -f compose.yml up -d
 
-# Stream logs for a service
+# Tail logs for a service
 docker compose -f compose.yml logs -f label-studio
 
 # Stop and remove services
 docker compose -f compose.yml down
 ```
 
+## What changed recently
+
+- Component README files were added to document the current state of backend subpackages, diagrams, docs, scripts, and sandbox.
+- Commit: Add README.md files for components to document current state
+  - https://github.com/jkznx/ai-ecosystem-workspace/commit/158251a7b05f201b22e4326972b2e70db161d6b7
+
+If you want a full CHANGELOG or versioned releases, consider adding a `CHANGELOG.md` and tagging releases.
+
 ## Contributing
 
-Contributions are welcome. Typical contribution workflow:
+Contributions are welcome. Typical workflow:
 
-1. Fork the repository
+1. Fork and clone
 2. Create a feature branch
-3. Make changes and add tests/examples as appropriate
-4. Open a pull request describing the change and why it's useful
+3. Add changes and tests
+4. Open a pull request describing the change
 
-Please keep secrets out of commits and use `.env` or CI secrets for credentials.
+Please avoid committing secrets. Use `.env` files for local development and CI secrets for automation.
 
 ## Contact
 
 Maintainer: `jkznx`
 
-For questions, feature requests, or contributions, please open an issue: https://github.com/jkznx/ai-ecosystem-workspace/issues
+Open an issue for questions or requests: https://github.com/jkznx/ai-ecosystem-workspace/issues
