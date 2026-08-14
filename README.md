@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="baby.png" alt="logo" width="160" style="border-radius:12px; box-shadow: 0 8px 24px rgba(33,37,41,0.12);"/>
+  <img src="dev\github\logo\baby.png" alt="logo" width="160" style="border-radius:12px; box-shadow: 0 8px 24px rgba(33,37,41,0.12);"/>
 </p>
 
 # AI Ecosystem Workspace
