@@ -1,11 +1,20 @@
-from arq.connections import RedisSettings
-
 from backend.core.config import settings
-from backend.workers.tasks.simple_work import simple_work
+from backend.libs.arq_pool import get_redis_settings
+from backend.workers.tasks.train_token_classifier import (
+    train_token_classifier,
+)
 
 
 class WorkerSettings:
-    functions = [simple_work]
-    redis_settings = RedisSettings(
-        host=settings.REDIS_HOST, port=settings.REDIS_PORT, database=settings.REDIS_DB
-    )
+    functions = [
+        train_token_classifier,
+    ]
+
+    queue_name = settings.TRAINER_QUEUE_NAME
+    redis_settings = get_redis_settings()
+
+    max_jobs = 1
+    job_timeout = settings.TRAINER_JOB_TIMEOUT_SECONDS
+    keep_result = settings.TRAINER_RESULT_TTL_SECONDS
+
+    allow_abort_jobs = True
