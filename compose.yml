@@ -7,42 +7,37 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
-    command: >
-      redis-server
-      --appendonly yes
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   postgres:
     image: postgres:16-alpine
     container_name: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: label_studio
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5433:5432"
     volumes:
       - postgresql-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   label-studio:
     image: heartexlabs/label-studio:latest
@@ -52,9 +47,9 @@ services:
       DJANGO_DB: default
       POSTGRE_HOST: postgres
       POSTGRE_PORT: 5432
-      POSTGRE_USER: postgres
-      POSTGRE_PASSWORD: postgres
-      POSTGRE_NAME: label_studio
+      POSTGRE_USER: ${POSTGRES_USER}
+      POSTGRE_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRE_NAME: ${POSTGRES_DB}
     ports:
       - "8080:8080"
     volumes:
@@ -62,38 +57,90 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   minio:
-      image: minio/minio:latest
-      container_name: minio
-      restart: unless-stopped
-      environment:
-        MINIO_ROOT_USER: minioadmin
-        MINIO_ROOT_PASSWORD: aegis@810vii
-      ports:
-        - "9000:9000"   # S3-compatible API
-        - "9001:9001"   # Web console
-      volumes:
-        - minio-data:/data
-      command: server /data --console-address ":9001"
-      healthcheck:
-        test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
-      logging:
-        driver: "json-file"
-        options:
-          max-size: "10m"
-          max-file: "3"
+    image: minio/minio:latest
+    container_name: minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    command:
+      - server
+      - /data
+      - --console-address
+      - ":9001"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/minio/health/live"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    image: ai-ecosystem-workspace-api
+    container_name: trainer-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      MINIO_ENDPOINT: minio:9000
+      LABEL_STUDIO_URL: http://label-studio:8080
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  trainer-worker:
+    build:
+      context: .
+      dockerfile: docker/trainer.Dockerfile
+    image: ai-ecosystem-workspace-trainer-worker
+    container_name: trainer-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MINIO_ENDPOINT: minio:9000
+      TRAINING_LOG_DIR: /app/training-logs
+      HF_HOME: /root/.cache/huggingface
+    depends_on:
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    gpus: all
+    volumes:
+      - ./training-logs:/app/training-logs
+      - huggingface-cache:/root/.cache/huggingface
 
 volumes:
   redis-data:
   postgresql-data:
   label-studio-data:
   minio-data:
+  huggingface-cache:

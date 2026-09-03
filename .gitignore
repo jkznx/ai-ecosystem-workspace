@@ -1,3 +1,15 @@
 .env
+.venv/
+.uv-cache/
+
+__pycache__/
+*.pyc
+
 logs/
 *.jsonl
+
+training-logs/
+trainer-output/
+
+.pytest_cache/
+.coverage

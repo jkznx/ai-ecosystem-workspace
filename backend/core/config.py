@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
+    TRAINER_QUEUE_NAME: str = "trainer"
+    TRAINER_JOB_TIMEOUT_SECONDS: int = 14400
+    TRAINER_RESULT_TTL_SECONDS: int = 604800
 
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
@@ -23,6 +26,11 @@ class Settings(BaseSettings):
     MINIO_SECRET_KEY: str = "aegis@810vii"
     MINIO_BUCKET: str = "selfie-photos"
     MINIO_SECURE: bool = False
+    MINIO_DATASET_BUCKET: str = "training-datasets"
+    MINIO_MODEL_BUCKET: str = "trained-models"
+    MINIO_LOG_BUCKET: str = "training-logs"
+
+    TRAINING_LOG_DIR: str = "training-logs"
 
     # JWT Setting
     JWT_SECRET_KEY: str = "change-me-in-.env"
