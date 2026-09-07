@@ -1,6 +1,11 @@
 from typing import Any
 from pydantic import BaseModel, ConfigDict, EmailStr
 from backend.api.schemas.auth import Token, UserRead
+from backend.api.schemas.inference import (
+    InferenceEnqueueResponse,
+    InferenceRequest,
+    InferenceStatusResponse,
+)
 from backend.api.schemas.minio import StorageUploadResponse
 from backend.api.schemas.arq import JobEnqueueRequest
 from backend.api.schemas.labelstudio import LabelStudioProject

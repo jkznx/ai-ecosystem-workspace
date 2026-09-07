@@ -87,6 +87,50 @@ services:
       timeout: 5s
       retries: 5
 
+  mlflow:
+    build:
+      context: .
+      dockerfile: docker/mlflow.Dockerfile
+    image: ai-ecosystem-workspace-mlflow
+    container_name: mlflow
+    restart: unless-stopped
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_SECRET_KEY}
+      AWS_DEFAULT_REGION: us-east-1
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    command:
+      - mlflow
+      - server
+      - --host
+      - 0.0.0.0
+      - --port
+      - "5000"
+      - --backend-store-uri
+      - postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - --artifacts-destination
+      - s3://mlflow-artifacts
+      - --allowed-hosts
+      - "*"
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
   api:
     build:
       context: .
@@ -103,6 +147,7 @@ services:
       POSTGRES_PORT: 5432
       MINIO_ENDPOINT: minio:9000
       LABEL_STUDIO_URL: http://label-studio:8080
+      MLFLOW_TRACKING_URI: http://mlflow:5000
     ports:
       - "8000:8000"
     depends_on:
@@ -111,6 +156,8 @@ services:
       redis:
         condition: service_healthy
       minio:
+        condition: service_healthy
+      mlflow:
         condition: service_healthy
 
   trainer-worker:
@@ -126,16 +173,42 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       MINIO_ENDPOINT: minio:9000
-      TRAINING_LOG_DIR: /app/training-logs
+      TRAINING_LOG_DIR: /app/logs/training-logs
       HF_HOME: /root/.cache/huggingface
+      MLFLOW_TRACKING_URI: http://mlflow:5000
     depends_on:
       redis:
         condition: service_healthy
       minio:
         condition: service_healthy
+      mlflow:
+        condition: service_healthy
     gpus: all
     volumes:
-      - ./training-logs:/app/training-logs
+      - ./logs/training-logs:/app/logs/training-logs
+      - huggingface-cache:/root/.cache/huggingface
+
+  inference-worker:
+    build:
+      context: .
+      dockerfile: docker/inference.Dockerfile
+    image: ai-ecosystem-workspace-inference-worker
+    container_name: inference-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      HF_HOME: /root/.cache/huggingface
+    depends_on:
+      redis:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    gpus: all
+    volumes:
       - huggingface-cache:/root/.cache/huggingface
 
 volumes:

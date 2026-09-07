@@ -6,10 +6,22 @@ ENV PYTHONUNBUFFERED=1
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
-COPY pyproject.toml uv.lock README.md ./
-COPY backend ./backend
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-RUN python -m pip install --no-cache-dir --break-system-packages ".[training]"
+COPY pyproject.toml uv.lock README.md ./
+
+RUN uv export --quiet \
+    --locked \
+    --no-dev \
+    --no-emit-project \
+    --extra training \
+    --output-file /tmp/requirements.txt \
+    && uv pip install \
+    --system \
+    --break-system-packages \
+    --requirements /tmp/requirements.txt
+
+COPY backend ./backend
 
 RUN python -c \
     "import torch; print(torch.__version__); print(torch.version.cuda)"

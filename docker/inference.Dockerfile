@@ -1,9 +1,10 @@
-FROM python:3.11-slim
+FROM pytorch/pytorch:2.13.0-cuda13.0-cudnn9-runtime
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
@@ -13,6 +14,7 @@ RUN uv export --quiet \
     --locked \
     --no-dev \
     --no-emit-project \
+    --extra inference \
     --output-file /tmp/requirements.txt \
     && uv pip install \
     --system \
@@ -21,6 +23,7 @@ RUN uv export --quiet \
 
 COPY backend ./backend
 
-EXPOSE 8000
+RUN python -c \
+    "import torch; print(torch.__version__); print(torch.version.cuda)"
 
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "arq", "backend.workers.inference_worker_settings.InferenceWorkerSettings"]

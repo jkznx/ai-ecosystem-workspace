@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     TRAINER_QUEUE_NAME: str = "trainer"
     TRAINER_JOB_TIMEOUT_SECONDS: int = 14400
     TRAINER_RESULT_TTL_SECONDS: int = 604800
+    INFERENCE_QUEUE_NAME: str = "inference"
+    INFERENCE_JOB_TIMEOUT_SECONDS: int = 600
+    INFERENCE_RESULT_TTL_SECONDS: int = 86400
+    INFERENCE_API_WAIT_SECONDS: int = 300
 
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
@@ -30,7 +34,12 @@ class Settings(BaseSettings):
     MINIO_MODEL_BUCKET: str = "trained-models"
     MINIO_LOG_BUCKET: str = "training-logs"
 
-    TRAINING_LOG_DIR: str = "training-logs"
+    TRAINING_LOG_DIR: str = "logs/training-logs"
+
+    MLFLOW_TRACKING_URI: str = "http://localhost:5000"
+    MLFLOW_EXPERIMENT_NAME: str = "token-classification"
+    MLFLOW_ARTIFACT_BUCKET: str = "mlflow-artifacts"
+    MLFLOW_REGISTERED_MODEL_ALIAS: str = "champion"
 
     # JWT Setting
     JWT_SECRET_KEY: str = "change-me-in-.env"

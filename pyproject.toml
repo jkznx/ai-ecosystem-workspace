@@ -8,6 +8,7 @@ requires-python = ">=3.11"
 dependencies = [
     "arq>=0.28.0",
     "bcrypt>=4.1.2,<5.0.0",
+    "click>=8,<8.3",
     "email-validator>=2.0.0",
     "fastapi>=0.110.0",
     "label-studio-sdk>=2.1.0",
@@ -29,7 +30,12 @@ training = [
     "accelerate",
     "datasets",
     "evaluate",
+    "mlflow==3.15.0",
     "numpy",
     "seqeval",
-    "transformers",
+    "transformers>=4.45,<5.15",
+]
+inference = [
+    "mlflow==3.15.0",
+    "transformers>=4.45,<5.15",
 ]

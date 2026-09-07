@@ -64,6 +64,8 @@ app = FastAPI(
         {"name": "minio", "description": "Object storage through MinIO"},
         {"name": "labelstudio", "description": "connect Label Studio"},
         {"name": "arq", "description": "Background job queue through ARQ/Redis"},
+        {"name": "training", "description": "Scheduled GPU model training"},
+        {"name": "inference", "description": "MLflow model inference through Redis"},
         {"name": "postgres", "description": "Data in PostgreSQL"},
         {"name": "monitoring", "description": "Health check and look config"},
     ],

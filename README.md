@@ -16,6 +16,7 @@ A modular workspace for developing, experimenting, and integrating AI tools, mod
 - [Services (Docker Compose)](#services-docker-compose)
 - [FastAPI Example](#fastapi-example)
 - [Development Workflow](#development-workflow)
+- [WTN-A08: MLflow and Inference Worker](#wtn-a08-mlflow-and-inference-worker)
 - [What changed recently](#what-changed-recently)
 - [Contributing](#contributing)
 - [Contact](#contact)
@@ -112,10 +113,13 @@ Common runtime dependencies used or expected by the repository include FastAPI, 
 ## Services (Docker Compose)
 
 The repository includes `compose.yml` to start common development services for the workspace. Typical services include:
+
 - Redis (caching and async queue backend)
 - PostgreSQL (relational database for examples and Label Studio)
 - Label Studio (annotation interface)
 - MinIO (S3-compatible object storage)
+- MLflow (experiment tracking and model registry)
+- GPU Trainer Worker and GPU Inference Worker
 
 Use a `.env` file to override default credentials and ports before starting the compose stack.
 
@@ -142,6 +146,19 @@ docker compose -f compose.yml logs -f label-studio
 # Stop and remove services
 docker compose -f compose.yml down
 ```
+
+## WTN-A08: MLflow and Inference Worker
+
+The stack trains a Hugging Face token-classification model on the `trainer` Redis queue, logs and registers it in MLflow, and serves queued GPU inference through the `inference` Redis queue.
+
+- FastAPI and Swagger: `http://localhost:8000/docs`
+- MLflow UI: `http://localhost:5000`
+- MinIO Console: `http://localhost:9001`
+- Synchronous API: `POST /api/v1/inference/predict`
+- Asynchronous APIs: `POST /api/v1/inference/enqueue` and `GET /api/v1/inference/status/{job_id}`
+- Registered model URI: `models:/bert-conll2003-v1@champion`
+
+See the full Thai step-by-step submission guide in [docs/WTN-A08.md](docs/WTN-A08.md).
 
 ## What changed recently
 

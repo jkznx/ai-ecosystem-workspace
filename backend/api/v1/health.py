@@ -1,3 +1,5 @@
+from urllib.request import urlopen
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import text
 
@@ -34,6 +36,18 @@ def readiness(db=Depends(get_db)) -> dict:
         checks["minio"] = "ok"
     except Exception as e:
         checks["minio"] = f"error: {e}"
+
+    try:
+        with urlopen(
+            f"{settings.MLFLOW_TRACKING_URI.rstrip('/')}/health",
+            timeout=3,
+        ) as response:
+            checks["mlflow"] = (
+                "ok" if response.status == 200
+                else f"error: status {response.status}"
+            )
+    except Exception as e:
+        checks["mlflow"] = f"error: {e}"
 
     overall = "ok" if all(v == "ok" for v in checks.values()) else "degraded"
     return {"status": overall, "checks": checks}
