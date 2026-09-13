@@ -19,6 +19,8 @@ Use this repository as a local developer playground for model prototyping, data 
 - [Services (Docker Compose)](#services-docker-compose)
 - [API Documentation](#api-documentation)
 - [Development Workflow](#development-workflow)
+- [WTN-A08: MLflow and Inference Worker](#wtn-a08-mlflow-and-inference-worker)
+- [ASM09: Observability Tools](#asm09-observability-tools)
 - [What changed recently](#what-changed-recently)
 - [Contributing](#contributing)
 - [Contact](#contact)

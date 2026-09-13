@@ -87,6 +87,50 @@ services:
       timeout: 5s
       retries: 5
 
+  mlflow:
+    build:
+      context: .
+      dockerfile: docker/mlflow.Dockerfile
+    image: ai-ecosystem-workspace-mlflow
+    container_name: mlflow
+    restart: unless-stopped
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_SECRET_KEY}
+      AWS_DEFAULT_REGION: us-east-1
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    command:
+      - mlflow
+      - server
+      - --host
+      - 0.0.0.0
+      - --port
+      - "5000"
+      - --backend-store-uri
+      - postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - --artifacts-destination
+      - s3://mlflow-artifacts
+      - --allowed-hosts
+      - "*"
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
   api:
     build:
       context: .
@@ -103,6 +147,14 @@ services:
       POSTGRES_PORT: 5432
       MINIO_ENDPOINT: minio:9000
       LABEL_STUDIO_URL: http://label-studio:8080
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      OTEL_SERVICE_NAME: trainer-api
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_COLLECTOR_HEALTH_URL: http://otel-collector:13133/
+      PROMETHEUS_URL: http://prometheus:9090
+      LOKI_URL: http://loki:3100
+      TEMPO_URL: http://tempo:3200
+      GRAFANA_URL: http://grafana:3000
     ports:
       - "8000:8000"
     depends_on:
@@ -112,6 +164,10 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      mlflow:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
 
   trainer-worker:
     build:
@@ -126,17 +182,154 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       MINIO_ENDPOINT: minio:9000
-      TRAINING_LOG_DIR: /app/training-logs
+      TRAINING_LOG_DIR: /app/logs/training-logs
       HF_HOME: /root/.cache/huggingface
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      OTEL_SERVICE_NAME: trainer-worker
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     depends_on:
       redis:
         condition: service_healthy
       minio:
         condition: service_healthy
+      mlflow:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    expose:
+      - "9101"
     gpus: all
     volumes:
-      - ./training-logs:/app/training-logs
+      - ./logs/training-logs:/app/logs/training-logs
       - huggingface-cache:/root/.cache/huggingface
+
+  inference-worker:
+    build:
+      context: .
+      dockerfile: docker/inference.Dockerfile
+    image: ai-ecosystem-workspace-inference-worker
+    container_name: inference-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      HF_HOME: /root/.cache/huggingface
+      OTEL_SERVICE_NAME: inference-worker
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      redis:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    expose:
+      - "9102"
+    gpus: all
+    volumes:
+      - huggingface-cache:/root/.cache/huggingface
+
+  tempo:
+    image: grafana/tempo:2.10.5
+    container_name: tempo
+    restart: unless-stopped
+    user: "0"
+    command:
+      - -config.file=/etc/tempo/tempo.yml
+    volumes:
+      - ./observability/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo-data:/var/tempo
+    ports:
+      - "3200:3200"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.160.0
+    container_name: otel-collector
+    restart: unless-stopped
+    command:
+      - --config=/etc/otelcol-contrib/config.yml
+    volumes:
+      - ./observability/otel-collector-config.yml:/etc/otelcol-contrib/config.yml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "13133:13133"
+    depends_on:
+      tempo:
+        condition: service_started
+
+  prometheus:
+    image: prom/prometheus:v3.7.0
+    container_name: prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --web.enable-lifecycle
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+
+  loki:
+    image: grafana/loki:3.7.0
+    container_name: loki
+    restart: unless-stopped
+    user: "0"
+    command:
+      - -config.file=/etc/loki/local-config.yml
+    volumes:
+      - ./observability/loki-config.yml:/etc/loki/local-config.yml:ro
+      - loki-data:/loki
+    ports:
+      - "3100:3100"
+
+  alloy:
+    image: grafana/alloy:v1.18.0
+    container_name: alloy
+    restart: unless-stopped
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    volumes:
+      - ./observability/alloy-config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - alloy-data:/var/lib/alloy/data
+    ports:
+      - "12345:12345"
+    depends_on:
+      loki:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana:12.3.0
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      prometheus:
+        condition: service_started
+      loki:
+        condition: service_started
+      tempo:
+        condition: service_started
 
 volumes:
   redis-data:
@@ -144,3 +337,8 @@ volumes:
   label-studio-data:
   minio-data:
   huggingface-cache:
+  prometheus-data:
+  loki-data:
+  tempo-data:
+  alloy-data:
+  grafana-data:

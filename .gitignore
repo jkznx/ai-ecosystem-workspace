@@ -8,7 +8,6 @@ __pycache__/
 logs/
 *.jsonl
 
-training-logs/
 trainer-output/
 
 .pytest_cache/

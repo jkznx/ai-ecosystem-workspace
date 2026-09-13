@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import timezone
 from uuid import uuid4
 
 from arq.jobs import Job, JobStatus
@@ -12,7 +12,7 @@ from backend.core.config import settings
 from backend.core.exceptions import ConflictError, NotFoundError
 from backend.libs.arq_pool import get_arq_pool
 from backend.libs.minio_client import get_minio_client
-
+from backend.observability.telemetry import inject_trace_context
 
 TRAINING_JOB_REGISTRY_KEY = "trainer:job_ids"
 TRAINING_JOB_METADATA_PREFIX = "trainer:job:metadata:"
@@ -67,16 +67,14 @@ class TrainingService:
         scheduled_for = request.start_at.astimezone(timezone.utc)
         timestamp = scheduled_for.strftime("%Y%m%dT%H%M%SZ")
 
-        job_id = (
-            f"train-{request.model_name}-"
-            f"{timestamp}-{uuid4().hex[:8]}"
-        )
+        job_id = f"train-{request.model_name}-{timestamp}-{uuid4().hex[:8]}"
 
         payload = request.model_dump(mode="json")
 
         job = await pool.enqueue_job(
             "train_token_classifier",
             payload,
+            inject_trace_context(),
             _job_id=job_id,
             _queue_name=settings.TRAINER_QUEUE_NAME,
             _defer_until=scheduled_for,
@@ -84,9 +82,7 @@ class TrainingService:
         )
 
         if job is None:
-            raise ConflictError(
-                "Training job could not be enqueued"
-            )
+            raise ConflictError("Training job could not be enqueued")
 
         metadata = {
             "job_id": job_id,
@@ -130,9 +126,7 @@ class TrainingService:
         job_status = await job.status()
 
         if job_status == JobStatus.not_found:
-            raise NotFoundError(
-                f"Training job {job_id!r} was not found"
-            )
+            raise NotFoundError(f"Training job {job_id!r} was not found")
 
         metadata_raw = await pool.get(metadata_key(job_id))
         scheduled_for = None
@@ -152,9 +146,7 @@ class TrainingService:
 
             if result_info is not None:
                 success = result_info.success
-                result = convert_result_to_json_value(
-                    result_info.result
-                )
+                result = convert_result_to_json_value(result_info.result)
 
         return {
             "job_id": job_id,
@@ -167,9 +159,7 @@ class TrainingService:
 
     async def list_jobs(self) -> list[dict]:
         pool = await get_arq_pool()
-        raw_job_ids = await pool.smembers(
-            TRAINING_JOB_REGISTRY_KEY
-        )
+        raw_job_ids = await pool.smembers(TRAINING_JOB_REGISTRY_KEY)
 
         jobs = []
 
