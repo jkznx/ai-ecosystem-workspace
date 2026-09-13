@@ -11,6 +11,7 @@ from backend.api.schemas.inference import InferenceRequest
 from backend.core.config import settings
 from backend.core.exceptions import ConflictError, NotFoundError
 from backend.libs.arq_pool import get_arq_pool
+from backend.observability.telemetry import inject_trace_context
 
 INFERENCE_JOB_REGISTRY_KEY = "inference:job_ids"
 INFERENCE_JOB_METADATA_PREFIX = "inference:job:metadata:"
@@ -35,13 +36,12 @@ class InferenceService:
     ) -> dict:
         pool = await get_arq_pool()
         submitted_at = datetime.now(timezone.utc)
-        job_id = (
-            f"infer-{submitted_at.strftime('%Y%m%dT%H%M%SZ')}-" f"{uuid4().hex[:8]}"
-        )
+        job_id = f"infer-{submitted_at.strftime('%Y%m%dT%H%M%SZ')}-{uuid4().hex[:8]}"
 
         job = await pool.enqueue_job(
             "predict_token_classification",
             request.model_dump(mode="json"),
+            inject_trace_context(),
             _job_id=job_id,
             _queue_name=settings.INFERENCE_QUEUE_NAME,
             _expires=(

@@ -17,6 +17,7 @@ A modular workspace for developing, experimenting, and integrating AI tools, mod
 - [FastAPI Example](#fastapi-example)
 - [Development Workflow](#development-workflow)
 - [WTN-A08: MLflow and Inference Worker](#wtn-a08-mlflow-and-inference-worker)
+- [ASM09: Observability Tools](#asm09-observability-tools)
 - [What changed recently](#what-changed-recently)
 - [Contributing](#contributing)
 - [Contact](#contact)
@@ -159,6 +160,18 @@ The stack trains a Hugging Face token-classification model on the `trainer` Redi
 - Registered model URI: `models:/bert-conll2003-v1@champion`
 
 See the full Thai step-by-step submission guide in [docs/WTN-A08.md](docs/WTN-A08.md).
+
+## ASM09: Observability Tools
+
+The stack now exports OpenTelemetry traces through an OTel Collector to Tempo, exposes Prometheus metrics from FastAPI and both workers, ships Docker logs with Grafana Alloy to Loki, and provisions all three data sources plus an AI Ecosystem dashboard in Grafana.
+
+- Grafana: `http://localhost:3000`
+- Prometheus: `http://localhost:9090`
+- Alloy: `http://localhost:12345`
+- Observability health: `http://localhost:8000/health/observability`
+- FastAPI metrics: `http://localhost:8000/metrics`
+
+See the Thai implementation and report guide in [docs/ASM09-observability-tools.md](docs/ASM09-observability-tools.md).
 
 ## What changed recently
 

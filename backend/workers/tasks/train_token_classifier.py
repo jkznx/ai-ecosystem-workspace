@@ -14,8 +14,10 @@ import mlflow.transformers
 import numpy as np
 import torch
 from datasets import DatasetDict, load_from_disk
-from mlflow import MlflowClient
 from minio import Minio
+from mlflow import MlflowClient
+from opentelemetry import trace
+from opentelemetry.trace import SpanKind, Status, StatusCode
 from transformers import (
     AutoModelForTokenClassification,
     AutoTokenizer,
@@ -26,10 +28,13 @@ from transformers import (
 
 from backend.api.schemas.training import TrainingRequest
 from backend.core.config import settings
+from backend.core.logger import ContextFilter
 from backend.libs.minio_client import (
     ensure_bucket,
     get_minio_client,
 )
+from backend.observability.metrics import observe_training_job
+from backend.observability.telemetry import extract_trace_context
 
 
 def create_job_logger(
@@ -41,16 +46,21 @@ def create_job_logger(
     logger.propagate = False
     logger.handlers.clear()
 
-    formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)s | trace=%(trace_id)s span=%(span_id)s | %(message)s"
+    )
+    context_filter = ContextFilter()
 
     file_handler = logging.FileHandler(
         log_path,
         encoding="utf-8",
     )
     file_handler.setFormatter(formatter)
+    file_handler.addFilter(context_filter)
 
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
+    console_handler.addFilter(context_filter)
 
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
@@ -179,7 +189,7 @@ def upload_directory(
 
         relative_path = local_path.relative_to(local_directory)
 
-        object_name = f"{object_prefix}/" f"{relative_path.as_posix()}"
+        object_name = f"{object_prefix}/{relative_path.as_posix()}"
 
         client.fput_object(
             bucket_name=bucket_name,
@@ -299,7 +309,7 @@ def log_model_to_mlflow(
         )
 
         model_uri = (
-            f"models:/{request.model_name}" f"@{settings.MLFLOW_REGISTERED_MODEL_ALIAS}"
+            f"models:/{request.model_name}@{settings.MLFLOW_REGISTERED_MODEL_ALIAS}"
         )
         mlflow_metadata = {
             "mlflow_run_id": run.info.run_id,
@@ -336,7 +346,7 @@ def log_model_to_mlflow(
     return mlflow_metadata
 
 
-async def train_token_classifier(
+async def _train_token_classifier_impl(
     ctx: dict[str, Any],
     payload: dict[str, Any],
 ) -> dict[str, Any]:
@@ -434,9 +444,7 @@ async def train_token_classifier(
             dataset_path = extract_directory / request.dataset_name
 
             if not dataset_path.exists():
-                raise FileNotFoundError(
-                    f"Dataset directory not found: " f"{dataset_path}"
-                )
+                raise FileNotFoundError(f"Dataset directory not found: {dataset_path}")
 
             logger.info(
                 "Loading Dataset from %s",
@@ -668,3 +676,53 @@ async def train_token_classifier(
 
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+
+
+async def train_token_classifier(
+    ctx: dict[str, Any],
+    payload: dict[str, Any],
+    trace_context: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    job_id = str(ctx["job_id"])
+    model_name = str(payload.get("model_name", "unknown"))
+    started_at = datetime.now(timezone.utc)
+    status = "failed"
+    parent_context = extract_trace_context(trace_context)
+    tracer = trace.get_tracer("ai-ecosystem.training")
+
+    with tracer.start_as_current_span(
+        "training.process",
+        context=parent_context,
+        kind=SpanKind.CONSUMER,
+        attributes={
+            "messaging.destination.name": settings.TRAINER_QUEUE_NAME,
+            "messaging.operation.type": "process",
+            "job.id": job_id,
+            "ai.model.name": model_name,
+            "ai.dataset.name": str(payload.get("dataset_name", "unknown")),
+            "ai.training.epochs": int(payload.get("epochs", 0)),
+            "ai.training.batch_size": int(payload.get("batch_size", 0)),
+        },
+    ) as span:
+        try:
+            result = await _train_token_classifier_impl(ctx, payload)
+            status = "success"
+            span.set_attributes(
+                {
+                    "mlflow.run_id": str(result.get("mlflow_run_id", "")),
+                    "ai.model.version": str(result.get("mlflow_model_version", "")),
+                }
+            )
+            return result
+        except Exception as error:
+            span.record_exception(error)
+            span.set_status(Status(StatusCode.ERROR, str(error)))
+            raise
+        finally:
+            duration = (datetime.now(timezone.utc) - started_at).total_seconds()
+            span.set_attribute("job.duration_seconds", duration)
+            observe_training_job(
+                status=status,
+                model_name=model_name,
+                duration_seconds=duration,
+            )
